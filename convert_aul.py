@@ -188,7 +188,7 @@ def main():
         json.dump(mapping, f, indent=2)
 
     print(f"\nSplit: {len(train_cases)} training, {len(test_cases)} test")
-    print(f"Outline masks saved to {outline_subdir}")
+    print(f"Outline masks saved to outlinesTr/ and outlinesTs/")
     print(f"Case mapping saved to {args.output_dir / 'case_mapping.json'}")
     print(f"Dataset written to {args.output_dir}")
 
