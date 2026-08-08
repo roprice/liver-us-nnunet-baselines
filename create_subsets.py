@@ -1,15 +1,19 @@
 """
-Create stratified subsampled training sets for data efficiency study.
+Create nested stratified subsampled training sets for data efficiency study.
 
 Takes the full Dataset001_LiverUS and creates smaller datasets at
 specified training set sizes. Test set (imagesTs/labelsTs) is identical
 across all sizes. Stratification preserves the ratio of mass-present
 vs mass-absent cases.
 
-Note: subsets are independent stratified samples, not nested. The 25
-images in the n=25 set are not necessarily a subset of the 50 images
-in the n=50 set. Each size is drawn independently using sequential
-calls to the same RNG (seed 42).
+Subsets are NESTED: the 25-image subset is fully contained within the
+50-image subset, which is fully contained within the 100-image subset,
+and so on. This means the only variable changing between sizes is the
+additional images, making the efficiency curve interpretable as a
+monotonic data accumulation story.
+
+The full 625-image pool is shuffled once (seed 42), stratified by mass
+presence, then subsets are taken as prefixes of increasing length.
 
 Usage:
     python create_subsets.py \\
@@ -36,26 +40,40 @@ def has_mass(label_path):
     return np.any(label == 2)
 
 
-def stratified_subsample(cases_with_mass, cases_without_mass, n, rng):
-    """Subsample n cases preserving the mass/no-mass ratio."""
+def build_nested_subsets(cases_with_mass, cases_without_mass, sizes, rng):
+    """Build nested subsets preserving the mass/no-mass ratio at each size.
+
+    Shuffles mass and no-mass cases independently, then for each size
+    takes the first N_mass and N_no_mass cases from the shuffled lists.
+    Because each size takes a prefix, smaller subsets are always contained
+    within larger ones.
+    """
+    # Shuffle each pool once
+    mass_shuffled = rng.permutation(cases_with_mass).tolist()
+    no_mass_shuffled = rng.permutation(cases_without_mass).tolist()
+
     total = len(cases_with_mass) + len(cases_without_mass)
-    n_mass = int(round(n * len(cases_with_mass) / total))
-    n_no_mass = n - n_mass
+    mass_ratio = len(cases_with_mass) / total
 
-    n_mass = min(n_mass, len(cases_with_mass))
-    n_no_mass = min(n_no_mass, len(cases_without_mass))
+    subsets = {}
+    for size in sizes:
+        n_mass = int(round(size * mass_ratio))
+        n_no_mass = size - n_mass
 
-    # Adjust if rounding left us short
-    while n_mass + n_no_mass < n:
-        if n_mass < len(cases_with_mass):
-            n_mass += 1
-        else:
-            n_no_mass += 1
+        n_mass = min(n_mass, len(mass_shuffled))
+        n_no_mass = min(n_no_mass, len(no_mass_shuffled))
 
-    selected_mass = rng.choice(cases_with_mass, n_mass, replace=False).tolist()
-    selected_no_mass = rng.choice(cases_without_mass, n_no_mass, replace=False).tolist()
+        # Adjust if rounding left us short
+        while n_mass + n_no_mass < size:
+            if n_mass < len(mass_shuffled):
+                n_mass += 1
+            else:
+                n_no_mass += 1
 
-    return sorted(selected_mass + selected_no_mass)
+        selected = sorted(mass_shuffled[:n_mass] + no_mass_shuffled[:n_no_mass])
+        subsets[size] = selected
+
+    return subsets
 
 
 def create_subset(source_dir, output_base, size, selected_cases):
@@ -101,7 +119,6 @@ def create_subset(source_dir, output_base, size, selected_cases):
     with open(os.path.join(output_dir, "dataset.json"), "w") as f:
         json.dump(dataset_json, f, indent=2)
 
-    print(f"  {dataset_name}: {len(selected_cases)} training cases")
     return dataset_name
 
 
@@ -134,18 +151,27 @@ def main():
           f"({len(cases_with_mass)} with mass, {len(cases_without_mass)} without)")
 
     rng = np.random.RandomState(RANDOM_SEED)
+    subsets = build_nested_subsets(cases_with_mass, cases_without_mass,
+                                  SUBSET_SIZES, rng)
 
-    print("\nCreating subsets:")
+    # Verify nesting
+    for i in range(len(SUBSET_SIZES) - 1):
+        smaller = set(subsets[SUBSET_SIZES[i]])
+        larger = set(subsets[SUBSET_SIZES[i + 1]])
+        assert smaller.issubset(larger), \
+            f"Nesting violated: {SUBSET_SIZES[i]} not subset of {SUBSET_SIZES[i+1]}"
+
+    print("\nCreating nested subsets:")
     for size in SUBSET_SIZES:
-        selected = stratified_subsample(
-            np.array(cases_with_mass),
-            np.array(cases_without_mass),
-            size,
-            rng
-        )
-        create_subset(args.source_dir, args.output_base, size, selected)
+        selected = subsets[size]
+        n_mass = sum(1 for c in selected
+                     if has_mass(os.path.join(label_dir, f"{c}.png")))
+        name = create_subset(args.source_dir, args.output_base, size, selected)
+        print(f"  {name}: {len(selected)} cases "
+              f"({n_mass} with mass, {len(selected) - n_mass} without)")
 
-    print("\nDone. Run run_efficiency_study.sh to train and predict.")
+    print("\nNesting verified: each subset is contained within the next.")
+    print("Done. Run run_efficiency_study.sh to train and predict.")
 
 
 if __name__ == "__main__":
