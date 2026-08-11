@@ -1,6 +1,8 @@
 # Liver ultrasound segmentation baselines
 
-This project establishes a reproducible segmentation baseline and data efficiency analysis for liver ultrasound using nnU-Net on the Annotated Ultrasound Liver (AUL) dataset. It asks: how much annotated data is enough, and where does the model fail?
+This project tries to answer this question: how many annotated images are needed to reliably identify liver boundaries and masses, and where does performance break down?
+
+To do so, it establishes a reproducible segmentation baseline and data efficiency analysis for liver ultrasound using nnU-Net on the Annotated Ultrasound Liver (AUL) dataset. 
 
 ## Key findings
 
