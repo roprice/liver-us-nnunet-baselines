@@ -75,7 +75,28 @@ Evaluated on the same 110 held-out test images across all sizes (15% stratified 
 
 Pearson correlation between mass size and Dice: r = 0.349, p = 0.0005. Size and class are confounded in this dataset: benign masses tend to be smaller, and the smallest quartile is 71% benign.
 
-### Training details
+
+## Projected performance
+
+Log-curve fit to the data efficiency results above (R² shown per metric).
+
+| Size | Liver Dice | Mass Dice | Benign Mass | Malignant Mass |
+|------|-----------|-----------|-------------|---------------|
+| 625 (actual) | 0.899 | 0.652 | 0.403 | 0.767 |
+| 1,000 (projected) | 0.919 | 0.707 | 0.407 | 0.846 |
+| 2,000 (projected) | 0.936 | 0.783 | 0.456 | 0.935 |
+| 5,000 (projected) | 0.957 | 0.884 | 0.520 | 0.990 |
+
+Fit quality: mass Dice R² = 0.96, malignant mass R² = 0.95, benign mass R² = 0.89.
+
+**Estimated data requirements for key thresholds:**
+
+- 0.90 overall mass Dice: ~5,800 images
+- 0.90 malignant mass Dice: ~1,500 images (very achievable)
+- 0.70 benign mass Dice: ~63,000 images (essentially impossible through data alone)
+
+
+## Training details
 
 | Size | Peak epoch | Epoch time |
 |------|-----------|------------|

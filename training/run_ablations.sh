@@ -93,3 +93,8 @@ echo "Compare results:"
 echo "  Baseline (150 epoch):  predictions_200/"
 echo "  PlainConv 300 epoch:   ablation_plainconv300_200/"
 echo "  ResEnc M 300 epoch:    ablation_resenc300_200/"
+
+tar cf ~/ablation_bundle.tar \
+    ~/nnUNet_results/ablation_* \
+    ~/nnUNet_results/Dataset005_LiverUS_200 \
+    ~/liver-us-nnunet-baselines/ablation_study.log
