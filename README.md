@@ -22,13 +22,14 @@ Ablation experiments at 200 images showed that neither doubling the training dur
 
 For false positives on normal livers, the model is highly specific: 12 of 15 normal test cases had zero false mass predictions, and the remaining 3 had negligible counts (< 0.4% of image pixels).
 
-Such failures may be clinically defensible. Small benign lesions are the least likely to change clinical management, while malignant mass detection, the dangerous failure mode, performs well even at small lesion sizes, even for smaller training set si.
+Such failures may be clinically defensible. Small benign lesions are the least likely to change clinical management, while malignant mass detection, the dangerous failure mode, performs well even at small lesion sizes, even with limited training data.
 
 ## Limitations
 
 This study uses a single dataset (AUL) from a single institution. Generalization to other ultrasound machines, patient populations, and annotation styles is untested.  The 85/15 train/test split uses a single fold rather than full cross-validation. Benign mass analysis is limited by small sample size (30 test cases) and confounded by the correlation between pathology type and lesion size in this dataset.
 
-Improving mass detection, particularly for benign masses, will require other approaches, such as more annotated data, targeted augmentation strategies, annotation review, loss function weighting, adjusting the loss threshold in postprocessing, attention gating, and transfer learning.
+Checkpoint selection was based on the mean of liver and mass pseudo Dice, which may not optimize for mass detection specifically
+
 
 
 ## Results 
@@ -225,7 +226,7 @@ results/                Training outputs (checkpoints, predictions, logs)
 
 Requires Python 3.10+. Training requires a CUDA-capable GPU. The full efficiency study (8 training runs at 150 epochs) completes in approximately 8 hours on an A100 80GB.
 
-Total wall-clock time including instance provisioning, setup, training, and downloading the 9GB results payload was approximately 15 hours. Evaluation was performed locally on a MacBook (no GPU required)
+Total wall-clock time including instance provisioning, setup, training, and downloading the 9GB results payload was approximately 15 hours. Evaluation was performed locally on a MacBook (no GPU required).
 
 ```bash
 pip install -r requirements.txt
@@ -276,13 +277,16 @@ python analysis/dice_vs_size.py
 
 ## Training infrastructure
 
-All training runs were performed on a single NVIDIA A100 80GB GPU (Verda Cloud, FIN-01 region). Total compute cost for the full efficiency study: approximately $14. Total GPU provisioning costs on top of compute (total wall-clock time including results downloading) should come to approximately $27.
+All training runs were performed on a single NVIDIA A100 80GB GPU (Verda Cloud, FIN-01 region). Total compute cost for the full efficiency study: approximately $14. Including instance idle time and data transfer, total cost was approximately $27..
 
 
 
 
 ## Future work
 
+Improving mass detection, particularly for benign masses, will require approaches such as more annotated data, targeted augmentation strategies, annotation review, loss function weighting, adjusting the loss threshold in postprocessing, attention gating, and transfer learning. Specific next steps related to this project are:
+
+- Mass-specific checkpoint selection: save best checkpoint based on mass Dice alone rather than the liver-mass average.
 - POCUS degradation: simulate handheld probe image quality (lower resolution, increased speckle, narrower field of view) and measure segmentation robustness
 - Cross-dataset validation: evaluate on SMC-LUD and other liver ultrasound datasets
 - Augmentation study: systematic evaluation of US-specific augmentations (speckle noise, acoustic shadowing simulation) for mass detection
@@ -291,9 +295,9 @@ All training runs were performed on a single NVIDIA A100 80GB GPU (Verda Cloud, 
 
 - Alsharid, M., Guo, X., Men, Q. et al. (2025). On the public dissemination and open sourcing of ultrasound resources, datasets and deep learning models. npj Digit. Med. 8, 777.
 - Isensee, F. et al. (2021). nnU-Net: a self-configuring method for deep learning-based biomedical image segmentation. Nature Methods, 18(2), 203-211.
+- Schima, W., Koh, D.M., Baron, R. (2018). Focal Liver Lesions. In: Hodler, J. et al. (eds) Diseases of the Abdomen and Pelvis 2018-2021. IDKD Springer Series. doi: 10.1007/978-3-319-75019-4_17
 - Tak, J. et al. (2026). SMC-LUD: Large-Scale B-Mode Liver Ultrasound Dataset for Hepatocellular Carcinoma and Hemangioma Classification. Scientific Data.
 - Tupper, A. & Gagné, C. (2025). Revisiting Data Augmentation for Ultrasound Images. TMLR. arXiv:2501.13193
-- Schima W, Koh DM, Baron R. Focal Liver Lesions. In: Hodler J, Kubik-Huch RA, von Schulthess GK, editors. Diseases of the Abdomen and Pelvis 2018-2021: Diagnostic Imaging - IDKD Book. Cham (CH): Springer; 2018. doi: 10.1007/978-3-319-75019-4_17
 - Wu, J. et al. (2024). Boundary-aware convolutional attention network for liver segmentation in ultrasound images. Scientific Reports, 14.
 - Xu, Y. et al. (2022). Annotated Ultrasound Liver images dataset. Zenodo. https://zenodo.org/records/7272660
 
