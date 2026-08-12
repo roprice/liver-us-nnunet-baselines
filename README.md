@@ -31,7 +31,12 @@ This study uses a single dataset (AUL) from a single institution. Generalization
 Improving mass detection, particularly for benign masses, will require other approaches, such as more annotated data, targeted augmentation strategies, annotation review, loss function weighting, adjusting the loss threshold in postprocessing, attention gating, and transfer learning.
 
 
-## Results
+## Results 
+
+Training set sizes were derived by assembling nested subsets: the 25-image set is fully contained within the 50-image set, and so on; the only variable between sizes is additional data. Best checkpoint selected by EMA pseudo Dice on nnU-Net's internal validation split averaging Liver and Mass Dice (a limitation discussed under 'Limitations').
+
+All training set sizes were evaluated on the same 110 held-out test images (15% stratified split, seed 42). 95 of 110 test cases contained annotated masses.
+
 
 ### Data efficiency curve
 
@@ -45,10 +50,6 @@ Improving mass detection, particularly for benign masses, will require other app
 | 400 | 0.889 | 0.587 |
 | 500 | 0.899 | 0.639 |
 | 625 | 0.899 | 0.652 |
-
-Evaluated on the same 110 held-out test images across all sizes (15% stratified split, seed 42). 95 of 110 test cases contained annotated masses. Subsets are nested: the 25-image set is fully contained within the 50-image set, and so on, so the only variable between sizes is additional data. Best checkpoint selected by EMA pseudo Dice on nnU-Net's internal validation split averaging Liver and Mass Dice.
-
-
 
 ### Mass segmentation by pathology type
 
@@ -64,6 +65,8 @@ Evaluated on the same 110 held-out test images across all sizes (15% stratified 
 | 625 | 0.403 | 30 | 0.767 | 65 |
 
 ### Mass detection rates by pathology type (625 images)
+
+A mass is counted as detected if the model predicted any mass pixels for that case.
 
 | Category | Detected | Total | Rate |
 |----------|----------|-------|------|
