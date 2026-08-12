@@ -1,32 +1,35 @@
 # Liver ultrasound segmentation baselines
 
-This project tries to answer this question: how many annotated ultrasound images are needed to reliably identify liver boundaries and masses, and where does performance break down?
+This project tries to answer this question: how many annotated ultrasound images are needed to reliably identify liver boundaries and masses, and how and why does performance break down?
 
-To do so, it establishes a reproducible segmentation baseline and data efficiency analysis, using nnU-Net on the Annotated Ultrasound Liver (AUL) dataset. 
+To do this, it establishes a reproducible segmentation baseline and data efficiency analysis, using nnU-Net on the Annotated Ultrasound Liver (AUL) dataset. 
 
-## Key findings
+## Key findings 
 
-Liver segmentation is effectively solved at 200 training images (0.89 Dice), with minimal gains from tripling the data to 625 (0.90). Normal livers are the easiest (0.93), and liver boundary detection is reliable regardless of pathology type.
+The models perform well in detecting livers themselves along with malignant masses. For the largest model (625 images), liver detection rate is 100% and malignant mass detection 97%. Benign mass detection rate is 70% (21/30).
 
-Mass detection tells a different story. Malignant masses reach usable performance at 200 images (0.65 Dice) and continue improving to 0.77 at 625, with no sign of plateauing. Benign masses remain poor across all sizes (0.40 at 625), driven by a combination of smaller lesion size and lower visual contrast against surrounding tissue.
+Most models also perform well at liver segmentation. The 200 training image model had Dice of 0.89 Dice, with minimal gains from tripling the data to 625 (0.90). Normal livers are the easiest (0.93), and liver boundary detection is reliable regardless of pathology type.
 
-Per-image analysis reveals a bimodal pattern in benign detection: the model either segments a benign mass well (Dice > 0.85) or misses it entirely (Dice = 0.0). Small benign masses are the primary failure mode. Within the same size quartile, small malignant masses (0.60 Dice) still substantially outperform small benign masses (0.31 Dice), confirming that pathology type matters independently of size.
+Mass segmentation tells a different story. Malignant mass segmentation reaches usable performance at 200 images (0.65 Dice) and continues improving to 0.77 at 625, with no sign of plateauing. 
+
+However, benign mass segmentation remains poor across all sizes (0.40 Dice at 625), driven by two factors: smaller lesion size (benign masses are disproportionately represented in the smallest size quartile) and lower visual contrast against surrounding parenchyma, consistent with the known isoechoic presentation of common benign lesions on B-mode ultrasound (Schima et al., 2018).
+
+Per-image analysis reveals a bimodal pattern in benign detection: the model either segments a benign mass well (Dice > 0.85) or misses it entirely (Dice = 0.0), with most such misses falling into the smallest size quartile.
+
+Within the same size quartile, small malignant masses (0.60 Dice) still substantially outperform small benign masses (0.31 Dice), confirming that pathology type matters independently of size.
+
+Ablation experiments at 200 images showed that neither doubling the training duration (300 epochs) nor switching to a residual encoder architecture meaningfully improved mass Dice.
 
 For false positives on normal livers, the model is highly specific: 12 of 15 normal test cases had zero false mass predictions, and the remaining 3 had negligible counts (< 0.4% of image pixels).
 
-Such failures may be clinically defensible. Small benign lesions are the least likely to change clinical management, while malignant mass detection, the dangerous failure mode, performs well even at small lesion sizes.
+Such failures may be clinically defensible. Small benign lesions are the least likely to change clinical management, while malignant mass detection, the dangerous failure mode, performs well even at small lesion sizes, even for smaller training set sizes.
 
 ## Limitations
 
-This study uses a single dataset (AUL) from a single institution.
-Generalization to other ultrasound machines, patient populations,
-and annotation styles is untested. Training was capped at 150
-epochs; several runs peaked near this limit, so mass detection
-results may understate the model's potential. The 85/15 train/test
-split uses a single fold rather than full cross-validation. Benign
-mass analysis is limited by small sample size (30 test cases) and
-confounded by the correlation between pathology type and lesion size
-in this dataset.
+This study uses a single dataset (AUL) from a single institution. Generalization to other ultrasound machines, patient populations, and annotation styles is untested.  The 85/15 train/test split uses a single fold rather than full cross-validation. Benign mass analysis is limited by small sample size (30 test cases) and confounded by the correlation between pathology type and lesion size in this dataset.
+
+Improving mass detection, particularly for benign masses, will require other approaches, such as more annotated data, targeted augmentation strategies, annotation review, loss function weighting, adjusting the loss threshold in postprocessing, attention gating, and transfer learning.
+
 
 ## Results
 
@@ -116,7 +119,7 @@ Training was capped at 150 epochs. Several runs peaked near the cutoff (100 at e
 
 ## Ablation experiments
 
-To determine whether mass detection at 150 training images is limited by training configuration or by the data itself, we tested two modifications against the 150-epoch PlainConvUNet baseline.
+We ran two ablation experiments - one to test whether the training was sufficient, another to test whether nnU-Net's residual encoder architecture (ResEnc M) performs better than its plain convolutional encoder, which was used for the main training runs.
 
 ### Extended training (300 epochs)
 
@@ -134,7 +137,10 @@ Replacing the plain convolutional encoder with nnU-Net's ResEnc M preset yielded
 | PlainConvUNet, 300 epochs | 0.893 | 0.525 |
 | ResEnc M, 300 epochs | 0.890 | 0.556 |
 
-Neither extended training nor a deeper encoder architecture meaningfully improved mass detection at 200 training images. This suggests that the bottleneck at this dataset size is the training data itself, not the model's capacity or training duration. The model extracts what it can from 200 images regardless of configuration. Improving mass detection, particularly for benign masses, will require more annotated data, targeted augmentation strategies, or both.
+Note that ResEnc M increased per-epoch training time by 70% (36s vs 21s).
+
+Neither extended training nor a deeper encoder architecture meaningfully improved mass detection at 200 training images. This suggests that the bottleneck at this dataset size is the training data itself, not the model's capacity or training duration. 
+
 
 ## Preprocessing
 
@@ -272,6 +278,7 @@ All training runs were performed on a single NVIDIA A100 80GB GPU (Verda Cloud, 
 - Isensee, F. et al. (2021). nnU-Net: a self-configuring method for deep learning-based biomedical image segmentation. Nature Methods, 18(2), 203-211.
 - Tak, J. et al. (2026). SMC-LUD: Large-Scale B-Mode Liver Ultrasound Dataset for Hepatocellular Carcinoma and Hemangioma Classification. Scientific Data.
 - Tupper, A. & Gagné, C. (2025). Revisiting Data Augmentation for Ultrasound Images. TMLR. arXiv:2501.13193
+- Schima W, Koh DM, Baron R. Focal Liver Lesions. In: Hodler J, Kubik-Huch RA, von Schulthess GK, editors. Diseases of the Abdomen and Pelvis 2018-2021: Diagnostic Imaging - IDKD Book. Cham (CH): Springer; 2018. doi: 10.1007/978-3-319-75019-4_17
 - Wu, J. et al. (2024). Boundary-aware convolutional attention network for liver segmentation in ultrasound images. Scientific Reports, 14.
 - Xu, Y. et al. (2022). Annotated Ultrasound Liver images dataset. Zenodo. https://zenodo.org/records/7272660
 
