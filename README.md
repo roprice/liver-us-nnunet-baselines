@@ -113,6 +113,29 @@ Fit quality: mass Dice R² = 0.96, malignant mass R² = 0.95, benign mass R² = 
 
 Training was capped at 150 epochs. Several runs peaked near the cutoff (100 at epoch 148, 300 at 146, 500 at 147), suggesting additional epochs may yield modest improvements, particularly for mass detection.
 
+
+## 6 Ablation experiments
+
+To determine whether mass detection at 200 training images is limited by training configuration or by the data itself, we tested two modifications against the 150-epoch PlainConvUNet baseline.
+
+### Extended training (300 epochs)
+
+Doubling the epoch budget from 150 to 300 did not improve mass detection. Mass Dice decreased slightly from 0.546 to 0.525, suggesting mild overfitting. Liver Dice was unchanged (0.893).
+
+### Residual encoder architecture
+
+Replacing the plain convolutional encoder with nnU-Net's ResEnc M preset yielded a marginal improvement in mass Dice (0.556 vs 0.546) that is not statistically meaningful. Liver Dice was unchanged (0.890).
+
+### Summary
+
+| Configuration | Liver Dice | Mass Dice |
+|---|---|---|
+| PlainConvUNet, 150 epochs (baseline) | 0.893 | 0.546 |
+| PlainConvUNet, 300 epochs | 0.893 | 0.525 |
+| ResEnc M, 300 epochs | 0.890 | 0.556 |
+
+Neither extended training nor a deeper encoder architecture meaningfully improved mass detection at 200 training images. This suggests that the bottleneck at this dataset size is the training data itself, not the model's capacity or training duration. The model extracts what it can from 200 images regardless of configuration. Improving mass detection, particularly for benign masses, will require more annotated data, targeted augmentation strategies, or both.
+
 ## Preprocessing
 
 The AUL dataset provides outline polygons marking the ultrasound scan sector boundary. Pixels outside the outline (black padding, UI overlays like the body position icon) contain no diagnostic information. During conversion, these pixels are zeroed out so that nnU-Net's automatic nonzero-mask normalization excludes non-scan-sector regions. Outline masks are also saved separately for potential use in future experiments (POCUS simulation, custom normalization).
@@ -234,10 +257,11 @@ python analysis/dice_vs_size.py
 
 All training runs were performed on a single NVIDIA A100 80GB GPU (Verda Cloud, FIN-01 region). Total compute cost for the full efficiency study: approximately $14. Total GPU provisioning costs on top of compute (total wall-clock time including results downloading) should come to approximately $27.
 
+
+
+
 ## Future work
 
-- Training duration: run the full 625-image model at 500-1000 epochs to determine whether mass Dice improves beyond the 150-epoch cap
-- ResEnc architecture: evaluate nnU-Net's residual encoder presets at 200 images to test whether architecture changes help mass detection
 - POCUS degradation: simulate handheld probe image quality (lower resolution, increased speckle, narrower field of view) and measure segmentation robustness
 - Cross-dataset validation: evaluate on SMC-LUD and other liver ultrasound datasets
 - Augmentation study: systematic evaluation of US-specific augmentations (speckle noise, acoustic shadowing simulation) for mass detection
