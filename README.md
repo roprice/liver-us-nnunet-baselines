@@ -196,8 +196,9 @@ AUL/
 training/               Training pipeline
   convert_aul.py          Convert raw AUL to nnU-Net format with outline masking
   create_subsets.py        Generate nested stratified subsets for efficiency study
-  custom_trainers/         nnUNetTrainer150 (150-epoch cap)
+  custom_trainers/         nnUNetTrainer150 (150-epoch cap), nnUNetTrainer300 (300-epoch cap)
   run_efficiency_study.sh  Train all subset sizes and run predictions
+  run_ablations.sh         Epoch and architecture ablation experiments at 200 images
   train.sh                 Single-dataset training script
 
 analysis/               Post-training evaluation and visualization
