@@ -22,7 +22,7 @@ Ablation experiments at 200 images showed that neither doubling the training dur
 
 For false positives on normal livers, the model is highly specific: 12 of 15 normal test cases had zero false mass predictions, and the remaining 3 had negligible counts (< 0.4% of image pixels).
 
-Such failures may be clinically defensible. Small benign lesions are the least likely to change clinical management, while malignant mass detection, the dangerous failure mode, performs well even at small lesion sizes, even for smaller training set sizes.
+Such failures may be clinically defensible. Small benign lesions are the least likely to change clinical management, while malignant mass detection, the dangerous failure mode, performs well even at small lesion sizes, even for smaller training set si.
 
 ## Limitations
 
@@ -46,9 +46,11 @@ Improving mass detection, particularly for benign masses, will require other app
 | 500 | 0.899 | 0.639 |
 | 625 | 0.899 | 0.652 |
 
-Evaluated on the same 110 held-out test images across all sizes (15% stratified split, seed 42). 95 of 110 test cases contained annotated masses. Subsets are nested: the 25-image set is fully contained within the 50-image set, and so on, so the only variable between sizes is additional data. Best checkpoint selected by EMA pseudo Dice on nnU-Net's internal validation split.
+Evaluated on the same 110 held-out test images across all sizes (15% stratified split, seed 42). 95 of 110 test cases contained annotated masses. Subsets are nested: the 25-image set is fully contained within the 50-image set, and so on, so the only variable between sizes is additional data. Best checkpoint selected by EMA pseudo Dice on nnU-Net's internal validation split averaging Liver and Mass Dice.
 
-### Mass detection by pathology type
+
+
+### Mass segmentation by pathology type
 
 | Size | Benign Dice | n | Malignant Dice | n |
 |------|------------|---|---------------|---|
@@ -60,6 +62,15 @@ Evaluated on the same 110 held-out test images across all sizes (15% stratified 
 | 400 | 0.341 | 30 | 0.701 | 65 |
 | 500 | 0.319 | 30 | 0.787 | 65 |
 | 625 | 0.403 | 30 | 0.767 | 65 |
+
+### Mass detection rates by pathology type (625 images)
+
+| Category | Detected | Total | Rate |
+|----------|----------|-------|------|
+| Malignant | 63 | 65 | 97% |
+| Benign | 21 | 30 | 70% |
+| Normal (false positives) | 3 | 15 | 20% |
+
 
 ### Liver segmentation by pathology type (625 images)
 
