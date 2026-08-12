@@ -111,12 +111,12 @@ Fit quality: mass Dice R² = 0.96, malignant mass R² = 0.95, benign mass R² = 
 | 500 | 147 | ~22s |
 | 625 | 114 | ~20s |
 
-Training was capped at 150 epochs. Several runs peaked near the cutoff (100 at epoch 148, 300 at 146, 500 at 147), suggesting additional epochs may yield modest improvements, particularly for mass detection.
+Training was capped at 150 epochs. Several runs peaked near the cutoff (100 at epoch 148, 300 at 146, 500 at 147), prompting an ablation experiment to see whether more training would make a difference.
 
 
-## 6 Ablation experiments
+## Ablation experiments
 
-To determine whether mass detection at 200 training images is limited by training configuration or by the data itself, we tested two modifications against the 150-epoch PlainConvUNet baseline.
+To determine whether mass detection at 150 training images is limited by training configuration or by the data itself, we tested two modifications against the 150-epoch PlainConvUNet baseline.
 
 ### Extended training (300 epochs)
 
