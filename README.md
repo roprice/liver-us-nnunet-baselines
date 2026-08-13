@@ -1,8 +1,8 @@
-# Data efficiency study of nnU-Net for malignant liver mass segmentation on B-mode ultrasound
+# Data efficiency study of nnU-Net for segmenting cancerous liver masses on B-mode ultrasound images
 
 This research tries to answer the question: what are the baseline training data needed to train nnU-Net to detect and segment malignant liver masses using B-mode ultrasound imagery?
 
-To do this, it establishes a reproducible segmentation baseline and data efficiency analysis, using nnU-Net on the Annotated Ultrasound Liver (AUL) dataset. 
+To do this, it establishes a reproducible segmentation baseline and data efficiency analysis, using nnU-Net on the Annotated Ultrasound Liver (AUL) dataset. We trained nnU-Net at eight nested training set sizes (from 25 to 625 images) and evaluated each subsequent model against a fixed 110-image test set.
 
 ## Key findings 
 
