@@ -1,6 +1,6 @@
-# Liver ultrasound segmentation baselines
+# Data efficiency of nnU-Net for malignant liver mass segmentation on B-mode ultrasound
 
-This project tries to answer this question: how many annotated ultrasound images are needed to reliably identify liver boundaries and masses, and how and why does performance break down?
+This research tries to answer the question: what are the baseline training data needed to train nnU-Net to detect and segment malignant liver masses using B-mode ultrasound imagery?
 
 To do this, it establishes a reproducible segmentation baseline and data efficiency analysis, using nnU-Net on the Annotated Ultrasound Liver (AUL) dataset. 
 
