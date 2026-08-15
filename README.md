@@ -277,19 +277,15 @@ python analysis/dice_vs_size.py
 
 ## Training infrastructure
 
-All training runs were performed on a single NVIDIA A100 80GB GPU (Verda Cloud, FIN-01 region). Total compute cost for the full efficiency study: approximately $14. Including instance idle time and data transfer, total cost was approximately $27..
-
-
-
+All training runs were performed on a single NVIDIA A100 80GB GPU (Verda Cloud, FIN-01 region). Total compute cost for the full efficiency study: approximately $14. Including instance idle time and data transfer, total cost was approximately $27
 
 ## Future work
 
 Improving mass detection, particularly for benign masses, will require approaches such as more annotated data, targeted augmentation strategies, annotation review, loss function weighting, adjusting the loss threshold in postprocessing, attention gating, and transfer learning. Specific next steps related to this project are:
 
-- Mass-specific checkpoint selection: save best checkpoint based on mass Dice alone rather than the liver-mass average.
+- Augmentation study: systematic evaluation of US-specific augmentations (speckle noise, acoustic shadowing simulation, custom texture analysis) for mass detection using US Augment
+- Cross-dataset validation: cross reference with SMC-LUD 
 - POCUS degradation: simulate handheld probe image quality (lower resolution, increased speckle, narrower field of view) and measure segmentation robustness
-- Cross-dataset validation: evaluate on SMC-LUD and other liver ultrasound datasets
-- Augmentation study: systematic evaluation of US-specific augmentations (speckle noise, acoustic shadowing simulation) for mass detection
 
 ## References
 
