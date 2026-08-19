@@ -284,7 +284,7 @@ All training runs were performed on a single NVIDIA A100 80GB GPU (Verda Cloud, 
 Improving mass detection, particularly for benign masses, will require approaches such as more annotated data, targeted augmentation strategies, annotation review, loss function weighting, adjusting the loss threshold in postprocessing, attention gating, and transfer learning. Specific next steps related to this project are:
 
 - Augmentation study: systematic evaluation of US-specific augmentations (speckle noise, acoustic shadowing simulation, custom texture analysis) for mass detection using US Augment
-- Cross-dataset validation: cross reference with SMC-LUD 
+- Cross-modality validation: cross reference with SMC-LUD 
 - POCUS degradation: simulate handheld probe image quality (lower resolution, increased speckle, narrower field of view) and measure segmentation robustness
 
 ## References
