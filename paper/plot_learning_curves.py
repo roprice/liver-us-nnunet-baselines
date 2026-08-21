@@ -44,7 +44,7 @@ plt.rcParams.update({
 
 BLUE = '#2a78d6'
 ORANGE = '#eb6834'
-GREEN = '#217a63'
+GREEN = '#3b6d11'
 # GRAY = '#898781'
 
 sizes = [25, 50, 100, 200, 300, 400, 500, 625]
