@@ -1,11 +1,17 @@
+# Large generated data
+results/*
+!results/visualizations/
+!results/.gitkeep
+nnUNet_raw/
 data/*
 !data/.gitkeep
-results/*
-!results/.gitkeep
+
+# Python
 __pycache__/
 *.pyc
+
+# macOS
 .DS_Store
-nnUNet_raw/
-results/
-.DS_Store
+
+# Personal notes
 NOTES.md
