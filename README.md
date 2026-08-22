@@ -1,5 +1,7 @@
 # Liver ultrasound segmentation baselines
 
+> **Status:** Pre-publication. Paper under review, results and weights are final but documentation may change.
+
 Resource efficiency baselines for liver and mass segmentation on B-mode ultrasound using nnU-Net. Trains at eight nested subset sizes (25 to 625 images) on the [AUL dataset](https://zenodo.org/records/7272660) and evaluates each model against a fixed 110-image test set.
 
 **Paper:** [Resource efficiency of nnU-Net for malignant liver mass segmentation on B-mode ultrasound](paper/) (Price-Gauger, 2026)
